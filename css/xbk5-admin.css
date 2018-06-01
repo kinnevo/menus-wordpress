@@ -1,0 +1,133 @@
+/* handles styles for admin panels */
+/* since 05.23.18 */
+
+/* admin button styles */
+.xbk5-button, .xbk5-button-alert {
+    background: #0085ba;
+    border-color: #0073aa #006799 #006799;
+    box-shadow: 0 1px 0 #006799;
+    color: #fff;
+    text-decoration: none;
+    text-shadow: 0 -1px 1px #006799, 1px 0 1px #006799, 0 1px 1px #006799, -1px 0 1px #006799;
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin: 10px;
+    display: inline-block;
+}
+
+.xbk5-button:hover {
+	background: #008ec2;
+    border-color: #006799;
+    color: #fff;
+}
+
+.xbk5-button-alert {
+    background: #d84d4d;
+    border-color: #D73334 #006799 #006799;
+    box-shadow: 0 1px 0 #712E31;
+    color: #fff;
+    text-decoration: none;
+    text-shadow: 0 -1px 1px #712E31, 1px 0 1px #712E31, 0 1px 1px #712E31, -1px 0 1px #712E31;
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin: 10px;
+    display: inline-block;
+}
+
+.xbk5-button-alert:hover {
+	background: #fd2c2c;
+}
+
+/*	chapter builder */
+#chapterwrap, #nw_chapter_description, #nw_book_description {
+	margin-top:20px;
+}
+
+#list_pre_chapters {
+	margin-left: 20px;
+}
+
+/* admin area tables
+***********************/
+th#id, th#ID {
+    width: 10%;
+}
+
+th#title, th#user_login {
+    width: 25%;
+}
+
+th#role {
+	width: 35%;
+}
+
+th#book_type {
+    width: 15%;
+}
+
+/* book builder */
+.form-wrapper{
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.form-wrapper p {
+	max-width: 590px;
+}
+
+.xbk5-subject {
+  display: block;
+  width: 28%;
+  float: left;
+}
+
+.xbk5-showme {
+  display: block;
+  width: 45%;
+  float: left;
+}
+
+.xbk5-searchtitle {
+  display: block;
+  width: 26%;
+  float: left;
+}
+
+.form-columns input[type=radio] {
+    margin: 8px 4px 0 0;
+}
+
+label {
+    margin: 6px;
+    display: inline-block;
+    font-weight: bold;
+}
+
+.xbk5-showme-label {
+    margin: 6px;
+    font-weight: bold;
+}
+
+/* manage individual user access */
+.welcome-panel .welcome-panel-column:first-child, .welcome-panel .welcome-panel-column:last-child {
+	width: 10%;
+}
+
+.welcome-panel .welcome-panel-column {
+	width: 30%;
+}
+
+.wp-admin select[multiple] {
+	min-height: 200px;
+}
+
+
+@media screen and (max-width: 1459px) {
+	
+	.xbk5-subject, .xbk5-showme, .xbk5-searchtitle {
+		width: 100%;
+		margin-bottom: 20px;
+	}	
+	
+}

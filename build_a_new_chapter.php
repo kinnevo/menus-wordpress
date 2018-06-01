@@ -23,6 +23,89 @@ function build_chapter_menu(){
 }
 
 
+/*
+ *  Read content for a user
+ */
+
+function reloia_list_posts(){
+	global $wpdb;
+
+   	if ( !wp_verify_nonce( $_REQUEST['nonce'], "reloia_list_posts_nonce")) {
+    	exit("No naughty business please - reloia_list_posts_nonce ");
+   	}
+
+	$topic_listing = "";
+    $source = $_REQUEST['topic'];
+	$a = $source;
+	$b = $source;
+	$sql_query = $wpdb->prepare(
+		"SELECT ID, post_title " .
+			"FROM " . $wpdb->prefix . "term_relationships " .
+			"INNER JOIN " . 
+			    $wpdb->prefix . "term_taxonomy " .
+			"ON " .
+			    $wpdb->prefix . "term_relationships.term_taxonomy_id  = %s " .
+			"INNER JOIN " .
+				$wpdb->prefix . "posts " .
+			"ON " . 
+			    $wpdb->prefix . "term_relationships.object_id = wp_posts.ID " .
+			"WHERE " . $wpdb->prefix . "term_taxonomy.term_taxonomy_id=%s  AND " . $wpdb->prefix . "posts.post_type = 'post' AND " . $wpdb->prefix . "posts.post_status = 'publish' ORDER BY " . $wpdb->prefix . "posts.post_title;", 
+	 	$a, $b );
+
+    $my_posts = $wpdb->get_results ($sql_query);
+
+    if ( sizeof($my_posts) == 0){
+    	$topic_listing .= "<P>There are not posts available</P>";
+	} else {
+		for ( $i = 0 ; $i < sizeof($my_posts) ; $i++){
+//			$topic_listing	.= '<p>' . $my_posts[$i]->post_title . '</p>';
+			$parent = 0; // not used for now
+
+	    	$topic_listing	.=  "<div id='" . $my_posts[$i]->ID . 
+	    					  "' class=nw_post" . 
+	    			          " drag-parent='" . $parent . 
+	    			          "' drag-menu-order='" . ($i+1) . 
+	    			          "' drag-category='" . ($a) .
+	    			          "' drag-type=post>" 
+	    			           . substr( $my_posts[$i]->post_title,0 , 80) . "</div>";
+      	}
+	}
+	$result['topics'] = $topic_listing;
+	$result['status'] = "success";
+
+
+   if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+      $result = json_encode($result);
+      echo $result;
+   }
+   else {
+      header("Location: ".$_SERVER["HTTP_REFERER"]);
+   }
+
+	wp_die();
+}
+
+function my_ajax_reloia_list_posts(){
+   echo "You must log in to list posts";
+   die();
+}
+
+
+function reloia_scripts() {
+  wp_enqueue_script(  'reloia_list_posts', CPTURL1 . '/js/reloia_select_topics_chapters.js', array( 'jquery' ), '1', true );
+  wp_localize_script( 'reloia_list_posts', 'reloia_list_posts', array(
+                      'ajaxurl'   => admin_url( 'admin-ajax.php' ),
+                      'action' => "reloia_list_posts",
+                      'reloia_list_posts_nonce' => wp_create_nonce( 'reloia_list_posts_nonce' )
+    )
+  );
+}
+add_action( "wp_ajax_reloia_list_posts", "reloia_list_posts", 3, 5 );
+add_action( "wp_ajax_nopriv_reloia_list_posts", "my_ajax_reloia_list_posts", 3, 5 );
+
+add_action( 'init', 'reloia_scripts' );
+
+
 /**
  * Book organizer Draggable class
  *
@@ -49,69 +132,112 @@ class Book_Manager_Draggable {
 
 	// class constructor
 	public function __construct() {
-		add_filter( 'set-screen-option', [ __CLASS__, 'set_screen' ], 10, 3 );
 	}
 
-	public static function set_screen( $status, $option, $value ) {
-		return $value;
+	function in_post_list ( $id, $list){
+		if ( empty($list) )
+			return false;
+		for ( $i = 0 ; $i < sizeof($list) ; $i++)
+			if ($list[$i]['page_id'] == $id )
+				return true;
+		return false;
 	}
 
-	protected function BM_header(){
+	public function get_left_post( $category){
+		global $wpdb;
+
+		$a = $category; // term_relationships.term_taxonomy_id
+		$b = $category; // term_relationships.term_taxonomy_id
+
+		$sql_query = $wpdb->prepare(
+			"SELECT ID, post_title " .
+				"FROM " . $wpdb->prefix . "term_relationships " .
+				"INNER JOIN " . 
+				    $wpdb->prefix . "term_taxonomy " .
+				"ON " .
+				    $wpdb->prefix . "term_relationships.term_taxonomy_id  = %s " .
+				"INNER JOIN " .
+					$wpdb->prefix . "posts " .
+				"ON " . 
+				    $wpdb->prefix . "term_relationships.object_id = wp_posts.ID " .
+				"WHERE " . $wpdb->prefix . "term_taxonomy.term_taxonomy_id=%s  AND " . $wpdb->prefix . "posts.post_type = 'post' ORDER BY " . $wpdb->prefix . "posts.post_title;", 
+		 	$a, $b );
+
+        $pages_list = $wpdb->get_results ($sql_query);
+
+		return $pages_list;
+	}
+
+	public function get_right_post( $chapter){
+		global $wpdb;
+
+      	$current_book_content = $wpdb->get_results(  "SELECT * from " . $wpdb->prefix . "book_content WHERE book_id=$chapter ", ARRAY_A );
+		return $current_book_content;
+	}
+
+	//
+	// Build the two sides by slipting the posts in the category from the ones already added to the prepacked chapter
+	//
+	function fill_draggable( $category, $chapter ) // if chapter == -1 will be a new chapter - it is not available
+	{
+		$parent = 1;
+		$left_rows = $this->get_left_post( $category ); // if new -- read post of a given category
+														// if exist -- read posts not contained in the chapter
+		if ($chapter == -1 ){
+			$right_rows = "";
+		} else {
+			$right_rows = $this->get_right_post( $chapter );
+		}
+
+		$left = "";
+		$right = "";
+
+		for ( $i = 0 ; $i < sizeof( $left_rows) ; $i++ ){
+
+			if ( $chapter == -1 ){ // is a new chapter 
+    			$left .=  "<div id='" . $left_rows[$i]->ID . 
+    					  "' class=nw_post" . 		    			
+    			          " drag-parent='" . $parent . 
+    			          "' drag-menu-order='" . ($i+1) . 
+    			          "' drag-category='" . ($category) . 
+    			          "' drag-type=post>" 
+    			           . substr( $left_rows[$i]->post_title,0 , 80)  . "</div>";
+
+			} else {
+				if ( $this->in_post_list( $left_rows[$i]->ID, $right_rows ) ){
+					$right .= "<div id='" . $left_rows[$i]->ID . 
+	    					  "' class=nw_post" . 		    			
+	    			          " drag-parent='" . $parent . 
+	    			          "' drag-menu-order='" . ($i+1) . 
+	    			          "' drag-category='" . ($category) . 
+	    			          "' drag-type=post>" 
+	    			           . substr( $left_rows[$i]->post_title,0 , 80)  . "</div>";
+
+				} else {
+	    			$left .=  "<div id='" . $left_rows[$i]->ID . 
+	    					  "' class=nw_post" . 		    			
+	    			          " drag-parent='" . $parent . 
+	    			          "' drag-menu-order='" . ($i+1) . 
+	    			          "' drag-category='" . ($category) . 
+	    			          "' drag-type=post>" 
+	    			           . substr( $left_rows[$i]->post_title,0 , 80)  . "</div>";
+				}
+			}
+		}
+
+		return array( $left, $right);
+	}
+
+	public function BM_header(){
 	?>
-	    <h1>Build Book:
-	    <?php 
-
-	    echo substr($this->current_book['title'], 0, 50);
-	    if  ( strlen ( $this->current_book['title']) > 50 )
-	    	echo " ...";
-	    ?></h1> 
+		<div class="wrap">
+		<h1>Create a Prepackaged Chapter</h1>
+		<h2>With this tool, you can create prepackaged chapters for a specific category. This can speed the creation of books considerably if you have sets of pages that you use regularly.</h2>
+		<p>Start the process by selecting a category from the dropdown menu below. This will populate the list of available content in the drag-and-drop editor. Next, enter a chapter name e.g. "Westside Lakeshore Suburbs." Enter a brief description for your reference, such as usage notes; this will show up in the Manage Chapters screen and helps others understand the purpose of the chapter.</p>
+		<p>With that done, you can drag the content you need from left to right in the section below. To complete the process, click <b>Save this Chapter</b>. Note that if you change the selection you made in the category dropdown menu, the tool will reset your selections and start building a new chapter.</p>
 	<?php 
 	}
 
-	function right_event_chapter( $parent, $id, $row ) {
-		global $wpdb;
-		// Testing
-		$row = "1";  // not used now
-//		      <div id=<?php echo "'right-events". $row . "' "
-
-		?>
-		      <div id="right-events" class='xbk5_container-dd'>
-				<?php
-/* 
- *	read the current content of the book
- *	if the list is empty put a id=999 as a placeholder
- *	otherwise read the content into the right-events xbk5_container-dd
- *
- *	I need user_id, book_id and version
- *	we need to keep the current value of the pages in the book
- */
-		      	$current_book_content = $wpdb->get_results(  "SELECT * from " . $wpdb->prefix . "book_content WHERE book_id=$this->current_id ", ARRAY_A );
-
-
-				if ( $current_book_content == null) {
-
-		     	} else {
-			      	for ( $i = 0 ; $i < sizeof($current_book_content) ; $i++){
-
-			      		$post_id = $current_book_content[$i]['page_id'];
-						$current_post_content = $wpdb->get_row(  "SELECT * from " . $wpdb->prefix . "posts WHERE ID=$post_id", ARRAY_A );
-
-		    			echo "<div id='" . $current_book_content[$i]['page_id'] . 
-		    					  "' class=nw_post" . 		    			
-		    			          " drag-parent='" . $parent . 
-		    			          "' drag-menu-order='" . $current_book_content[$i]['order_id'] . 
-		    			          "' drag-category='" . $current_book_content[$i]['category_id'] .
-		    			          "' drag-type=post>" .
-		    			           substr( $current_post_content['post_title'] ,0 , 80)  . 
-		    			           "</div>";
-					}
-		      	}
-			?>
-		    </div>
-
-
-		<?php 
-	} // end of 	function right_event( $parent, $id, $row ) {
 
 
 	/**
@@ -171,9 +297,9 @@ class Book_Manager_Draggable {
 			<div id="chapterwrap">
 				<input type="text" name="chapter_title" size="50" 
 				<?php if ($this->current_id != -1 ) echo 'value="'.$this->current_book['title'].'"'?>
-				 id="nw_chapter_title" autocomplete="off" placeholder="Enter Chapter Name here">
+				 id="nw_chapter_title" autocomplete="off" placeholder="Enter Chapter Name here.">
 				<br>
-				<textarea name="chapter_description" cols="120" rows="3" id="nw_chapter_description" autocomplete="off" placeholder="Provide a Description about this chapter"><?php  if (($this->current_book['description'])!="") echo $this->current_book['description'];?></textarea>
+				<textarea name="chapter_description" cols="120" rows="3" id="nw_chapter_description" autocomplete="off" placeholder="Provide a Description about this Chapter."><?php  if (($this->current_book['description'])!="") echo $this->current_book['description'];?></textarea>
 				<input type="hidden" id="nw_chapter_id" value="<?php echo $this->current_id  ?>" >
 				<input type="hidden" id="nw_chapter_category" value="<?php echo $this->category  ?>">
 			</div>
@@ -181,61 +307,28 @@ class Book_Manager_Draggable {
 
 		<button id="js_nw_save_chapter1" class="xbk5-button">Save this Chapter</button><span id='status1'></span><br>
 		
-					<!-- search by post title -->
-	        <form method="post" action="" autocomplete="off">
-	            <label for="seek">Search by post title:</label>
-	            <input id="reloia_seek_topics" type="text" name="seek">
- 				<input type="hidden" id="nw_book_id" value= <?php echo '"' . $this->current_id . '"' ; ?> />
-	        </form>
+	<!-- search by post title
+        <form method="post" action="" autocomplete="off">
+            <label for="seek">Search by post title:</label>
+            <input id="reloia_seek_topics_chapters" type="text" name="seek">
+				<input type="hidden" id="nw_book_id" value= <?php echo '"' . $this->current_id . '"' ; ?> />
+        </form> 
+    -->
 
 <!-- 	    <a href=<?php echo home_url();?> target="_blank">Preview Chapter Content</a> -->
 
+<?php  
+	$fill = $this->fill_draggable( $this->category, $this->current_id); ?>
 	<div class="examples">
 <!-- 		<div class="parent"> -->
 		<div class="drag-parent">
 		    <div class='drag-wrapper'>
 		    	<div id='left-events' class='xbk5_container-dd'>
-
-				<?php
-				$parent = 1;
-	    		// $pages_list = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "posts WHERE post_type = 'page' AND post_status = 'publish' limit 25");
-
-				$a = $this->category; // term_relationships.term_taxonomy_id
-				$b = $this->category; // term_relationships.term_taxonomy_id
-
-				$sql_query = $wpdb->prepare(
-					"SELECT ID, post_title " .
-						"FROM " . $wpdb->prefix . "term_relationships " .
-						"INNER JOIN " . 
-						    $wpdb->prefix . "term_taxonomy " .
-						"ON " .
-						    $wpdb->prefix . "term_relationships.term_taxonomy_id  = %s " .
-						"INNER JOIN " .
-							$wpdb->prefix . "posts " .
-						"ON " . 
-						    $wpdb->prefix . "term_relationships.object_id = wp_posts.ID " .
-						"WHERE " . $wpdb->prefix . "term_taxonomy.term_taxonomy_id=%s  AND " . $wpdb->prefix . "posts.post_type = 'post' ORDER BY " . $wpdb->prefix . "posts.post_title;", 
-				 	$a, $b );
-
-		        $pages_list = $wpdb->get_results ($sql_query);
-
-		        if ( sizeof($pages_list) != 0)
-		    		for ( $i = 0 ; $i < sizeof($pages_list) ; $i++){
-		    			echo "<div id='" . $pages_list[$i]->ID . 
-		    					  "' class=nw_post" . 		    			
-		    			          " drag-parent='" . $parent . 
-		    			          "' drag-menu-order='" . ($i+1) . 
-		    			          "' drag-category='" . ($a) . 
-		    			          "' drag-type=post>" 
-		    			           . substr( $pages_list[$i]->post_title,0 , 80)  . "</div>";
-		    		}
-		    	else
-		    		echo "Empty List";
-			    ?>
-		     	 </div>
-					<?php 
-						$this->right_event_chapter( 1, $this->current_id, $i);  // $parent, $id, $row 
-					?>
+		    		<?php echo $fill[0]; ?>
+		     	</div>
+		     	<div id="right-events" class='xbk5_container-dd'>
+					<?php echo $fill[1]; ?>
+		     	</div>
 			</div>
 		</div>
 	</div>
@@ -243,23 +336,10 @@ class Book_Manager_Draggable {
 	}
 }
 
-class YOP_Book_Mgmt extends Book_Manager_Draggable{
-	public function BM_header(){
-	?>
-		<div class="wrap">
-		<h1>Create a Prepackaged Chapter</h1>
-		<h2>With this tool, you can create prepackaged chapters for a specific category. This can speed the creation of books considerably if you have sets of pages that you use regularly.</h2>
-		<p>Start the process by selecting a category from the dropdown menu below. This will populate the list of available content in the drag-and-drop editor. Next, enter a chapter name e.g. "Westside Lakeshore Suburbs." Enter a brief description for your reference, such as usage notes; this will show up in the Manage Chapters screen and helps others understand the purpose of the chapter.</p>
-		<p>With that done, you can drag the content you need from left to right in the section below. Note that for longer lists, it may be easiest to use the <b>Search by post title</b> tool to quickly find the content you need. To complete the process, click <b>Save this Chapter</b>. Note that if you change the selection you made in the category dropdown menu, the tool will reset your selections and start building a new chapter.</p>
-	<?php 
-	}
-}
-
 
 function chapter_mgmt1(){
 ?>
 <?php 
-	$chapter_drag = new YOP_Book_Mgmt;
+	$chapter_drag = new Book_Manager_Draggable;
 	$chapter_drag->book_management();
-
 }

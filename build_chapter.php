@@ -272,7 +272,7 @@ class NW_Chapter_List extends WP_List_Table {
 		echo '<div class="wrap">';
 
 		echo '<h1 class="wp-heading-inline">Manage Chapters</h1>';
-		echo '<a href="/wp-admin/admin.php?page=chapter_mgmt" class="page-title-action">Add New</a>';
+		echo '<a href="/wp-admin/admin.php?page=chapter_mgmt1" class="page-title-action">Add New</a>';
 		echo '<div style="margin-right:300px;">';
 		echo '<p>You can build as many prepackaged chapters as you like. Use this tool to create groups of pages you\'ll use regularly, like "Westside Shoreline Communities" or "Montessori Schools." You can then drag these prepackaged chapters into as many custom books as you like. Note that changes made to these prepackaged chapters will not be reflected in books you\'ve already built. The list below displays the prepackaged chapters currently available to you.</p>';
 		echo '</div>';

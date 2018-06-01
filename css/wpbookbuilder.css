@@ -1,0 +1,304 @@
+/* wpbookbuilder default styles */
+
+
+/* Accordion-like display in the left content side */
+.nw_chapters {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: 0.4s;
+}
+
+.nw_active, .nw_chapters:hover {
+    background-color: #ccc;
+}
+
+.nw_chapters:after {
+    content: '\002B';
+    color: #777;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+}
+
+.nw_active:after {
+    content: "\2212";
+}
+
+.nw_panel {
+    padding: 0 18px;
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
+.nw_chapter {
+    border-style: solid;
+    border-color: red;
+}
+
+.nw_post {
+    background-color: blue;
+}
+
+.empty {
+    width: 400px;
+    height: 28px;
+}
+
+/* navigator panel */
+ul.nw-main-nav {
+	list-style: none;
+	padding-left: 0;
+}
+
+ul.nw-main-nav li {
+	display: inline-block;
+	width: 20%;
+	text-align: center;
+}
+
+/*
+ul.nw-main-nav li:first-of-type {
+	margin-left: 5%;
+}
+
+ul.nw-main-nav li:last-of-type {
+	margin-right: 5%;
+}
+*/
+
+a.nw_click {
+	text-decoration: none;
+	color: #0d218b;
+}
+
+a.nw_click:hover {
+	color: #3c6523;
+	text-decoration: none;
+}
+
+form#xbk5-loginform {
+    width: 20%;
+    margin: 50px auto;
+}
+
+/*	book navigation styles 
+***************************/
+.wpb-nav {
+    padding-bottom: 20px;
+    margin-bottom: 10px;
+}
+
+h4.wpb-nav-header {
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	font-family: "Bokor", sans-serif;
+	padding-bottom: 20px;
+}
+
+.wpb-nav i {
+	font-size: 36px;
+	padding: 8px;
+	color: #0d218b;
+}
+
+.wpb-nav i:hover {
+	color: #3c6523;
+}
+
+/* interest manager */
+.interest_manager ul.nw-main-nav li {
+	display: inline-block;
+	width: 18%;
+	text-align: center;
+}
+
+/*
+.interest_manager ul.nw-main-nav li:first-of-type {
+	margin-left: 5%;
+}
+
+.interest_manager ul.nw-main-nav li:last-of-type {
+	margin-right: 5%;
+}
+*/
+
+.nw-on{
+    font-size: 38px;
+	color: #770808;
+}
+
+.nw-off{
+    font-size: 38px;
+   	color: #0d218b;
+}
+
+a#user_likes, a#user_likes:hover, a#user_more_info, a#user_more_info:hover, a#user_dontcare, a#user_dontcare:hover, a#myBtn, a#myBtn:hover {
+    text-decoration: none;
+}
+
+
+#ask_info button {
+	margin-top:10px;
+}
+
+ul.nw-main-nav {
+    list-style: none;
+    padding-left: 0;
+    display: block;
+    width: 50%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* modals */
+.modal-header h2 {
+    color: white;
+    padding: 20px 0 0 4px;
+}
+
+.modal-footer h3 {
+    color: white;
+    margin-right: 20px;
+}
+
+.modal-content {
+	width: 80% !important;
+	margin: 120px auto 0;
+}
+
+.tagline {
+  position: relative;
+  margin-top: 0;
+}
+.tagline-text {
+  vertical-align: middle;
+}
+
+pre {
+  white-space: pre-wrap;
+}
+
+pre code {
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+label {
+  display: block;
+  margin-bottom: 15px;
+}
+
+sub {
+  display: block;
+  text-align: right;
+  margin-top: -10px;
+  font-size: 11px;
+  font-style: italic;
+}
+
+.drag-parent {
+  background-color: rgba(255, 255, 255, 0.2);
+  margin: 10px 0;
+  padding: 10px;
+}
+
+
+.gh-fork {
+  position: fixed;
+  top: 0;
+  right: 0;
+  border: 0;
+}
+
+/* dragula-specific example page styles */
+.drag-wrapper {
+  display: table;
+  background-color: rgba(100, 100, 100, 0.2);
+  width: 100%;
+}
+
+.xbk5_container {
+  display: table-cell;
+  background-color: rgba(255, 255, 255, 0.2);
+  width: 50%;
+  padding: 10px;
+}
+
+.xbk5_container-dd {
+  display: table-cell;
+  background-color: rgba(255, 255, 255, 0.2);
+  width: 50%;
+}
+
+.xbk5_container-dd:nth-child(odd) {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+/*
+ * note that styling gu-mirror directly is a bad practice because it's too generic.
+ * you're better off giving the draggable elements a unique class and styling that directly!
+ */
+.xbk5_container-dd > div,
+.gu-mirror {
+  margin: 10px;
+  padding: 10px;
+  background-color: #ccc;
+  transition: opacity 0.4s ease-in-out;
+}
+.xbk5_container-dd > div {
+  cursor: move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+.gu-mirror {
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
+.xbk5_container-dd .ex-moved {
+  background-color: #FFFFFF;
+}
+.xbk5_container-dd.ex-over {
+  background-color: rgba(60, 0, 78, 0.3);
+}
+
+.drag-empty {
+	background-color: #dedede;
+	border: dotted 2px #868686;	
+}
+
+#left-events.xbk5_container-dd .nw_post {
+    border: 2px dotted #868686;
+}
+
+/* curated content nav */
+h4.xbk5_content_nav_cat {
+	margin-bottom: 2px;
+	font-size: .9em;
+}
+
+
+ul.xbk5-content-nav {
+	list-style-type: none;
+    padding-left: 6px;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 400;
+}
+
+ul.xbk5-content-nav li {
+	font-size: .8em;
+}

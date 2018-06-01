@@ -1,0 +1,146 @@
+.tagline {
+  position: relative;
+  margin-top: 0;
+}
+.tagline-text {
+  vertical-align: middle;
+}
+
+pre {
+  white-space: pre-wrap;
+}
+
+pre code {
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+label {
+  display: block;
+  margin-bottom: 15px;
+}
+
+sub {
+  display: block;
+  text-align: right;
+  margin-top: -10px;
+  font-size: 11px;
+  font-style: italic;
+}
+
+.parent {
+  background-color: rgba(255, 255, 255, 0.2);
+  margin: 10px 0;
+  padding: 10px;
+}
+
+
+.gh-fork {
+  position: fixed;
+  top: 0;
+  right: 0;
+  border: 0;
+}
+
+/* dragula-specific example page styles */
+.wrapper {
+  display: table;
+  background-color: rgba(100, 100, 100, 0.2);
+  width: 100%;
+}
+
+.xbk5_container {
+  display: table-cell;
+  background-color: rgba(255, 255, 255, 0.2);
+  width: 50%;
+  padding: 10px;
+}
+
+.xbk5_container-dd {
+  display: table-cell;
+  background-color: rgba(255, 255, 255, 0.2);
+  width: 50%;
+}
+
+.xbk5_container-dd:nth-child(odd) {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+/*
+ * note that styling gu-mirror directly is a bad practice because it's too generic.
+ * you're better off giving the draggable elements a unique class and styling that directly!
+ */
+.xbk5_container-dd > div,
+.gu-mirror {
+  margin: 10px;
+  padding: 10px;
+  background-color: #ccc;
+  transition: opacity 0.4s ease-in-out;
+}
+.xbk5_container-dd > div {
+  cursor: move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+.gu-mirror {
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
+.xbk5_container-dd .ex-moved {
+  background-color: #FFFFFF;
+}
+.xbk5_container-dd.ex-over {
+  background-color: rgba(60, 0, 78, 0.3);
+}
+#left-lovehandles > div,
+#right-lovehandles > div {
+  cursor: initial;
+}
+.handle {
+  padding: 0 5px;
+  margin-right: 5px;
+  background-color: rgba(0, 0, 0, 0.4);
+  cursor: move;
+}
+.image-thing {
+  margin: 20px 0;
+  display: block;
+  text-align: center;
+}
+
+/* dk additions 041218
+	we should probably change the name of this file
+	not sure why, but adding this css made it so the placeholder div doesn't disappear
+***********************/
+
+.empty {
+	background-color: #dedede;
+	border: dotted 2px #868686;	
+}
+
+#left-events.xbk5_container-dd .nw_post {
+    border: 2px dotted #868686;
+}
+
+.reloia-button {
+    background: #0085ba;
+    border-color: #0073aa #006799 #006799;
+    box-shadow: 0 1px 0 #006799;
+    color: #fff;
+    text-decoration: none;
+    text-shadow: 0 -1px 1px #006799, 1px 0 1px #006799, 0 1px 1px #006799, -1px 0 1px #006799;
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin: 10px;
+    display: inline-block;
+}
+
+.reloia-button:hover {
+	background: #008ec2;
+    border-color: #006799;
+    color: #fff;
+}
+

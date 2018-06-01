@@ -151,6 +151,7 @@ add_action( 'admin_enqueue_scripts', 'load_wpbookbuilder_wp_admin_style' );
 require 'build_book.php';
 require 'build_new_book.php';
 
+require 'create_chapter1.php';
 require 'build_chapter.php';
 require 'build_a_new_chapter.php';
 
